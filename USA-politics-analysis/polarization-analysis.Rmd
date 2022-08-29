@@ -1,0 +1,748 @@
+---
+title: "Mini project2"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library("dplyr")
+```
+
+```{r}
+mem1989 = read.csv("congress/1989/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1989$year <- 1989
+dim(mem1989)
+length(unique(mem1989$id))
+head(mem1989)
+```
+
+```{r}
+mem1990 = read.csv("congress/1990/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1990$year <- 1990
+
+mem1991 = read.csv("congress/1991/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1991$year <- 1991
+
+mem1992 = read.csv("congress/1992/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1992$year <- 1992
+
+mem1993 = read.csv("congress/1993/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1993$year <- 1993
+
+mem1994 = read.csv("congress/1994/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1994$year <- 1994
+
+mem1995 = read.csv("congress/1995/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1995$year <- 1995
+```
+
+```{r}
+joined1 <- rbind(mem1989, mem1990, mem1991, mem1992, mem1993, mem1994, mem1995)
+dim(joined1)
+length(unique(joined1$id))
+head(joined1)
+```
+
+```{r}
+mem1996 = read.csv("congress/1996/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1996$year <- 1996
+
+mem1997 = read.csv("congress/1997/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1997$year <- 1997
+
+mem1998 = read.csv("congress/1998/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1998$year <- 1998
+
+mem1999 = read.csv("congress/1999/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem1999$year <- 1999
+
+mem2000 = read.csv("congress/2000/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2000$year <- 2000
+
+mem2001 = read.csv("congress/2001/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2001$year <- 2001
+
+mem2002 = read.csv("congress/2002/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2002$year <- 2002
+```
+
+```{r}
+joined2 <- rbind(joined1, mem1996, mem1997, mem1998, mem1999, mem2000, mem2001, mem2002)
+dim(joined2)
+length(unique(joined2$id))
+head(joined2)
+```
+
+```{r}
+mem2003 = read.csv("congress/2003/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2003$year <- 2003
+
+mem2004 = read.csv("congress/2004/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2004$year <- 2004
+
+mem2005 = read.csv("congress/2005/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2005$year <- 2005
+
+mem2006 = read.csv("congress/2006/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2006$year <- 2006
+
+mem2007 = read.csv("congress/2007/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2007$year <- 2007
+
+mem2008 = read.csv("congress/2008/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2008$year <- 2008
+```
+
+```{r}
+joined3 <- rbind(joined2, mem2003, mem2004, mem2005, mem2006, mem2007, mem2008)
+dim(joined3)
+length(unique(joined3$id))
+```
+
+```{r}
+mem2009 = read.csv("congress/2009/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2009$year <- 2009
+
+mem2010 = read.csv("congress/2010/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2010$year <- 2010
+
+mem2011 = read.csv("congress/2011/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2011$year <- 2011
+
+mem2012 = read.csv("congress/2012/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2012$year <- 2012
+
+mem2013 = read.csv("congress/2013/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2013$year <- 2013
+
+mem2014 = read.csv("congress/2014/members.csv", header=TRUE,stringsAsFactors=FALSE)
+mem2014$year <- 2014
+
+```
+
+```{r}
+final_df <- rbind(joined3, mem2009, mem2010, mem2011, mem2012, mem2013, mem2014)
+dim(final_df)
+length(unique(final_df$id))
+head(final_df)
+```
+
+```{r}
+final_df <- within(final_df, { count <- ave(year, id, FUN=function(x) length(unique(x)))})
+```
+
+```{r}
+final_df1 <- subset(final_df, count >= 26)
+dim(final_df1)
+length(unique(final_df1$id))
+```
+
+```{r}
+View(final_df1)
+```
+
+```{r}
+
+```
+
+```{r}
+subset(final_df1, id == 'S184')
+```
+
+```{r}
+unique(final_df1$party)
+```
+
+Plot PC1 and PC2 for all bills per each year and see the position of any person wrt to the D or R cluster and if he is moving from the cluster or if the cluster itself is moving (change in idealogy). To highlight a particular senator, create a df with PC1(X-axis) , PC2 (Y-axis), year (facet), member (highlight). Can also take average of PC1 and PC2 for each year and see the distribution (line graphs across years)
+
+```{r}
+vot1989 = read.csv("congress/1989/votes.csv", header=TRUE, stringsAsFactors=FALSE)
+#joined1989 = join(mem1989, vot1989, by = "id")
+head(vot1989)
+```
+
+```{r}
+ggplot(changes, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + facet_wrap(~ changes$year)
+```
+
+
+
+# Question 3
+```{r}
+# number of votes
+votes_1989 = data.frame(read.csv("congress/1989/votes.csv", header = TRUE))
+votes_1990 = data.frame(read.csv("congress/1990/votes.csv", header = TRUE))
+votes_1991 = data.frame(read.csv("congress/1991/votes.csv", header = TRUE))
+votes_1992 = data.frame(read.csv("congress/1992/votes.csv", header = TRUE))
+votes_1993 = data.frame(read.csv("congress/1993/votes.csv", header = TRUE))
+votes_1994 = data.frame(read.csv("congress/1994/votes.csv", header = TRUE))
+votes_1995 = data.frame(read.csv("congress/1995/votes.csv", header = TRUE))
+votes_1996 = data.frame(read.csv("congress/1996/votes.csv", header = TRUE))
+votes_1997 = data.frame(read.csv("congress/1997/votes.csv", header = TRUE))
+votes_1998 = data.frame(read.csv("congress/1998/votes.csv", header = TRUE))
+votes_1999 = data.frame(read.csv("congress/1999/votes.csv", header = TRUE))
+votes_2000 = data.frame(read.csv("congress/2000/votes.csv", header = TRUE))
+votes_2001 = data.frame(read.csv("congress/2001/votes.csv", header = TRUE))
+votes_2002 = data.frame(read.csv("congress/2002/votes.csv", header = TRUE))
+votes_2003 = data.frame(read.csv("congress/2003/votes.csv", header = TRUE))
+votes_2004 = data.frame(read.csv("congress/2004/votes.csv", header = TRUE))
+votes_2005 = data.frame(read.csv("congress/2005/votes.csv", header = TRUE))
+votes_2006 = data.frame(read.csv("congress/2006/votes.csv", header = TRUE))
+votes_2007 = data.frame(read.csv("congress/2007/votes.csv", header = TRUE))
+votes_2008 = data.frame(read.csv("congress/2008/votes.csv", header = TRUE))
+votes_2009 = data.frame(read.csv("congress/2009/votes.csv", header = TRUE))
+votes_2010 = data.frame(read.csv("congress/2010/votes.csv", header = TRUE))
+votes_2011 = data.frame(read.csv("congress/2011/votes.csv", header = TRUE))
+votes_2012 = data.frame(read.csv("congress/2012/votes.csv", header = TRUE))
+votes_2013 = data.frame(read.csv("congress/2013/votes.csv", header = TRUE))
+votes_2014 = data.frame(read.csv("congress/2014/votes.csv", header = TRUE))
+
+# number of members
+members_1989 = data.frame(read.csv("congress/1989/members.csv", header = TRUE))
+members_1990 = data.frame(read.csv("congress/1990/members.csv", header = TRUE))
+members_1991 = data.frame(read.csv("congress/1991/members.csv", header = TRUE))
+members_1992 = data.frame(read.csv("congress/1992/members.csv", header = TRUE))
+members_1993 = data.frame(read.csv("congress/1993/members.csv", header = TRUE))
+members_1994 = data.frame(read.csv("congress/1994/members.csv", header = TRUE))
+members_1995 = data.frame(read.csv("congress/1995/members.csv", header = TRUE))
+members_1996 = data.frame(read.csv("congress/1996/members.csv", header = TRUE))
+members_1997 = data.frame(read.csv("congress/1997/members.csv", header = TRUE))
+members_1998 = data.frame(read.csv("congress/1998/members.csv", header = TRUE))
+members_1999 = data.frame(read.csv("congress/1999/members.csv", header = TRUE))
+members_2000 = data.frame(read.csv("congress/2000/members.csv", header = TRUE))
+members_2001 = data.frame(read.csv("congress/2001/members.csv", header = TRUE))
+members_2002 = data.frame(read.csv("congress/2002/members.csv", header = TRUE))
+members_2003 = data.frame(read.csv("congress/2003/members.csv", header = TRUE))
+members_2004 = data.frame(read.csv("congress/2004/members.csv", header = TRUE))
+members_2005 = data.frame(read.csv("congress/2005/members.csv", header = TRUE))
+members_2006 = data.frame(read.csv("congress/2006/members.csv", header = TRUE))
+members_2007 = data.frame(read.csv("congress/2007/members.csv", header = TRUE))
+members_2008 = data.frame(read.csv("congress/2008/members.csv", header = TRUE))
+members_2009 = data.frame(read.csv("congress/2009/members.csv", header = TRUE))
+members_2010 = data.frame(read.csv("congress/2010/members.csv", header = TRUE))
+members_2011 = data.frame(read.csv("congress/2011/members.csv", header = TRUE))
+members_2012 = data.frame(read.csv("congress/2012/members.csv", header = TRUE))
+members_2013 = data.frame(read.csv("congress/2013/members.csv", header = TRUE))
+members_2014 = data.frame(read.csv("congress/2014/members.csv", header = TRUE))
+```
+
+```{r}
+members_1990[members_1990$first_name == 'Mitch' & members_1990$last_name == 'McConnell',]
+
+members_1989 <- within(members_1989, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1990 <- within(members_1990, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1991 <- within(members_1991, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1992 <- within(members_1992, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1993 <- within(members_1993, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1994 <- within(members_1994, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1995 <- within(members_1995, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1996 <- within(members_1996, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1997 <- within(members_1997, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1998 <- within(members_1998, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_1999 <- within(members_1999, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2000 <- within(members_2000, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2001 <- within(members_2001, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2002 <- within(members_2002, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2003 <- within(members_2003, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2004 <- within(members_2004, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2005 <- within(members_2005, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2006 <- within(members_2006, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2007 <- within(members_2007, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2008 <- within(members_2008, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2009 <- within(members_2009, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2010 <- within(members_2010, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2011 <- within(members_2011, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2012 <- within(members_2012, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2013 <- within(members_2013, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+members_2014 <- within(members_2014, party[first_name == 'Mitch' & last_name == 'McConnell'] <- 'McConnell')
+```
+
+
+```{r}
+members_1990[members_1990$first_name == 'John' & members_1990$last_name == 'McCain',]
+
+members_1989 <- within(members_1989, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1990 <- within(members_1990, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1991 <- within(members_1991, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1992 <- within(members_1992, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1993 <- within(members_1993, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1994 <- within(members_1994, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1995 <- within(members_1995, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1996 <- within(members_1996, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1997 <- within(members_1997, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1998 <- within(members_1998, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_1999 <- within(members_1999, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2000 <- within(members_2000, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2001 <- within(members_2001, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2002 <- within(members_2002, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2003 <- within(members_2003, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2004 <- within(members_2004, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2005 <- within(members_2005, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2006 <- within(members_2006, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2007 <- within(members_2007, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2008 <- within(members_2008, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2009 <- within(members_2009, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2010 <- within(members_2010, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2011 <- within(members_2011, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2012 <- within(members_2012, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2013 <- within(members_2013, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+members_2014 <- within(members_2014, party[first_name == 'John' & last_name == 'McCain'] <- 'McCain')
+
+```
+
+
+
+# Question 1
+```{r}
+# 1989
+joined_1989 = join(members_1989, votes_1989, by = "id")
+votes_1989 = joined_1989[,(-1:-6)]
+members_1989 = joined_1989[,1:6]
+
+# 2014
+joined_2014 = join(members_2014, votes_2014, by = "id")
+votes_2014 = joined_2014[,(-1:-6)]
+members_2014 = joined_2014[,1:6]
+
+# In case there is an error while running this file such as "Error in join(members_1996, votes_1996, by = "id") : could not find function "join". " 
+# In this case please run the libraries again this would remove the errors in the code.
+```
+
+```{r}
+recode_votes = function(vote) {
+    if(is.na(vote)) {
+        return(0)
+    } else if(vote == "Yea") {
+        return(1)
+    } else if(vote == "Nay") {
+        return(0.5)
+    } else {
+        return(0)
+    }
+}
+# 1989
+votes_numeric_1989 = apply(votes_1989, 1:2, recode_votes)
+
+# 2014
+votes_numeric_2014 = apply(votes_2014, 1:2, recode_votes)
+```
+
+```{r}
+# 1989
+votes_1989_prcomp = prcomp(votes_numeric_1989)
+plot(votes_1989_prcomp$sdev^2 / sum(votes_1989_prcomp$sdev^2)) 
+
+# 2014
+votes_2014_prcomp = prcomp(votes_numeric_2014)
+plot(votes_2014_prcomp$sdev^2 / sum(votes_2014_prcomp$sdev^2))
+```
+```{r}
+pca_analysis = function(arg1, arg2){
+  joined_x = join(arg2, arg1, by = "id")
+  arg1 = joined_x[,(-1:-6)]
+  arg2 = joined_x[,1:6]
+  
+  arg1_numeric = apply(arg1, 1:2, recode_votes)
+  arg1_prcomp = prcomp(arg1_numeric)
+  
+  arg2_and_scores = data.frame(arg2, arg1_prcomp$x)
+  return (arg2_and_scores)
+}
+# 1989
+members_and_scores_1996 = pca_analysis(votes_1996, members_1996)
+
+# 1990
+members_and_scores_1990 = pca_analysis(votes_1990, members_1990)
+
+# 1991
+members_and_scores_1991 = pca_analysis(votes_1991, members_1991)
+
+# 1992
+members_and_scores_1992 = pca_analysis(votes_1992, members_1992)
+
+# 1993
+members_and_scores_1993 = pca_analysis(votes_1993, members_1993)
+
+# 1994
+members_and_scores_1994 = pca_analysis(votes_1994, members_1994)
+
+# 1995
+members_and_scores_1995 = pca_analysis(votes_1995, members_1995)
+
+# 1997
+members_and_scores_1997 = pca_analysis(votes_1997, members_1997)
+
+# 1998
+members_and_scores_1998 = pca_analysis(votes_1998, members_1998)
+
+# 1999
+members_and_scores_1999 = pca_analysis(votes_1999, members_1999)
+
+# 2000
+members_and_scores_2000 = pca_analysis(votes_2000, members_2000)
+
+# 2001
+members_and_scores_2001 = pca_analysis(votes_2001, members_2001)
+
+# 2002
+members_and_scores_2002 = pca_analysis(votes_2002, members_2002)
+
+# 2003
+members_and_scores_2003 = pca_analysis(votes_2003, members_2003)
+
+# 2004
+members_and_scores_2004 = pca_analysis(votes_2004, members_2004)
+
+# 2005
+members_and_scores_2005 = pca_analysis(votes_2005, members_2005)
+
+# 2006
+members_and_scores_2006 = pca_analysis(votes_2006, members_2006)
+
+# 2007
+members_and_scores_2007 = pca_analysis(votes_2007, members_2007)
+
+# 2008
+members_and_scores_2008 = pca_analysis(votes_2008, members_2008)
+
+# 2009
+members_and_scores_2009 = pca_analysis(votes_2009, members_2009)
+
+# 2010
+members_and_scores_2010 = pca_analysis(votes_2010, members_2010)
+
+# 2011
+members_and_scores_2011 = pca_analysis(votes_2011, members_2011)
+
+# 2012
+members_and_scores_2012 = pca_analysis(votes_2012, members_2012)
+
+# 2013
+members_and_scores_2013 = pca_analysis(votes_2013, members_2013)
+```
+
+```{r}
+members_and_scores_1989 = data.frame(year = "1989", members_and_scores_1989)
+members_and_scores_1990 = data.frame(year = "1990", members_and_scores_1990)
+members_and_scores_1991 = data.frame(year = "1991", members_and_scores_1991)
+members_and_scores_1992 = data.frame(year = "1992", members_and_scores_1992)
+members_and_scores_1993 = data.frame(year = "1993", members_and_scores_1993)
+members_and_scores_1994 = data.frame(year = "1994", members_and_scores_1994)
+members_and_scores_1995 = data.frame(year = "1995", members_and_scores_1995)
+members_and_scores_1996 = data.frame(year = "1996", members_and_scores_1996)
+members_and_scores_1997 = data.frame(year = "1997", members_and_scores_1997)
+members_and_scores_1998 = data.frame(year = "1998", members_and_scores_1998)
+members_and_scores_1999 = data.frame(year = "1999", members_and_scores_1999)
+members_and_scores_2000 = data.frame(year = "2000", members_and_scores_2000)
+members_and_scores_2001 = data.frame(year = "2001", members_and_scores_2001)
+members_and_scores_2002 = data.frame(year = "2002", members_and_scores_2002)
+members_and_scores_2003 = data.frame(year = "2003", members_and_scores_2003)
+members_and_scores_2004 = data.frame(year = "2004", members_and_scores_2004)
+members_and_scores_2005 = data.frame(year = "2005", members_and_scores_2005)
+members_and_scores_2006 = data.frame(year = "2006", members_and_scores_2006)
+members_and_scores_2007 = data.frame(year = "2007", members_and_scores_2007)
+members_and_scores_2008 = data.frame(year = "2008", members_and_scores_2008)
+members_and_scores_2009 = data.frame(year = "2009", members_and_scores_2009)
+members_and_scores_2010 = data.frame(year = "2010", members_and_scores_2010)
+members_and_scores_2011 = data.frame(year = "2011", members_and_scores_2011)
+members_and_scores_2012 = data.frame(year = "2012", members_and_scores_2012)
+members_and_scores_2013 = data.frame(year = "2013", members_and_scores_2013)
+members_and_scores_2014 = data.frame(year = "2014", members_and_scores_2014)
+```
+
+```{r}
+changes <- data.frame(PC1 = c(rbind(members_and_scores_1989$PC1, members_and_scores_1990$PC1, members_and_scores_1991$PC1, members_and_scores_1992$PC1, members_and_scores_1993$PC1, members_and_scores_1994$PC1, members_and_scores_1995$PC1, members_and_scores_1996$PC1, members_and_scores_1997$PC1, members_and_scores_1998$PC1, members_and_scores_1999$PC1, members_and_scores_2000$PC1, members_and_scores_2001$PC1, members_and_scores_2002$PC1, members_and_scores_2003$PC1, members_and_scores_2004$PC1, members_and_scores_2005$PC1, members_and_scores_2006$PC1, members_and_scores_2007$PC1, members_and_scores_2008$PC1, members_and_scores_2009$PC1, members_and_scores_2010$PC1, members_and_scores_2011$PC1, members_and_scores_2012$PC1, members_and_scores_2013$PC1, members_and_scores_2014$PC1)),
+                      PC2 = c(rbind(members_and_scores_1989$PC2, members_and_scores_1990$PC2, members_and_scores_1991$PC2, members_and_scores_1992$PC2, members_and_scores_1993$PC2, members_and_scores_1994$PC2, members_and_scores_1995$PC2, members_and_scores_1996$PC2, members_and_scores_1997$PC2, members_and_scores_1998$PC2, members_and_scores_1999$PC2, members_and_scores_2000$PC2, members_and_scores_2001$PC2, members_and_scores_2002$PC2, members_and_scores_2003$PC2, members_and_scores_2004$PC2, members_and_scores_2005$PC2, members_and_scores_2006$PC2, members_and_scores_2007$PC2, members_and_scores_2008$PC2, members_and_scores_2009$PC2, members_and_scores_2010$PC2, members_and_scores_2011$PC2, members_and_scores_2012$PC2, members_and_scores_2013$PC2, members_and_scores_2014$PC2)),
+                      party = c(rbind(members_and_scores_1989$party, members_and_scores_1990$party, members_and_scores_1991$party, members_and_scores_1992$party, members_and_scores_1993$party, members_and_scores_1994$party, members_and_scores_1995$party, members_and_scores_1996$party, members_and_scores_1997$party, members_and_scores_1998$party, members_and_scores_1999$party, members_and_scores_2000$party, members_and_scores_2001$party, members_and_scores_2002$party, members_and_scores_2003$party, members_and_scores_2004$party, members_and_scores_2005$party, members_and_scores_2006$party, members_and_scores_2007$party, members_and_scores_2008$party, members_and_scores_2009$party, members_and_scores_2010$party, members_and_scores_2011$party, members_and_scores_2012$party, members_and_scores_2013$party, members_and_scores_2014$party)), 
+                      last_name = c(rbind(members_and_scores_1989$last_name, members_and_scores_1990$last_name, members_and_scores_1991$last_name, members_and_scores_1992$last_name, members_and_scores_1993$last_name, members_and_scores_1994$last_name, members_and_scores_1995$last_name, members_and_scores_1996$last_name, members_and_scores_1997$last_name, members_and_scores_1998$last_name, members_and_scores_1999$last_name, members_and_scores_2000$last_name, members_and_scores_2001$last_name, members_and_scores_2002$last_name, members_and_scores_2003$last_name, members_and_scores_2004$last_name, members_and_scores_2005$last_name, members_and_scores_2006$last_name, members_and_scores_2007$last_name, members_and_scores_2008$last_name, members_and_scores_2009$last_name, members_and_scores_2010$last_name, members_and_scores_2011$last_name, members_and_scores_2012$last_name, members_and_scores_2013$last_name, members_and_scores_2014$last_name)),
+                      year = c(rbind(members_and_scores_1989$year, members_and_scores_1990$year, members_and_scores_1991$year, members_and_scores_1992$year, members_and_scores_1993$year, members_and_scores_1994$year, members_and_scores_1995$year, members_and_scores_1996$year, members_and_scores_1997$year, members_and_scores_1998$year, members_and_scores_1999$year, members_and_scores_2000$year, members_and_scores_2001$year, members_and_scores_2002$year, members_and_scores_2003$year, members_and_scores_2004$year, members_and_scores_2005$year, members_and_scores_2006$year, members_and_scores_2007$year, members_and_scores_2008$year, members_and_scores_2009$year, members_and_scores_2010$year, members_and_scores_2011$year, members_and_scores_2012$year, members_and_scores_2013$year, members_and_scores_2014$year)))
+```
+
+# Question 3
+```{r}
+ggplot(members_and_scores_1989, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1989")
+ggplot(members_and_scores_1990, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1990")
+ggplot(members_and_scores_1991, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1991")
+ggplot(members_and_scores_1992, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1992")
+ggplot(members_and_scores_1993, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1993")
+ggplot(members_and_scores_1994, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1994")
+ggplot(members_and_scores_1995, aes(x = -PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1995")
+ggplot(members_and_scores_1996, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1996")
+ggplot(members_and_scores_1997, aes(x = -PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1997")
+ggplot(members_and_scores_1998, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1998")
+ggplot(members_and_scores_1999, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 1999")
+ggplot(members_and_scores_2000, aes(x = -PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2000")
+ggplot(members_and_scores_2001, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2001")
+ggplot(members_and_scores_2002, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2001")
+ggplot(members_and_scores_2003, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2003")
+ggplot(members_and_scores_2004, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2004")
+ggplot(members_and_scores_2005, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2005")
+ggplot(members_and_scores_2006, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2006")
+ggplot(members_and_scores_2007, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2007")
+ggplot(members_and_scores_2008, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2008")
+ggplot(members_and_scores_2009, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2009")
+ggplot(members_and_scores_2010, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2010")
+ggplot(members_and_scores_2011, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2011")
+ggplot(members_and_scores_2012, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2012")
+ggplot(members_and_scores_2013, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2013")
+ggplot(members_and_scores_2014, aes(x = PC1, y = PC2)) + geom_point(aes(color = party)) + geom_text_repel(aes(label = last_name)) + xlim(-6,6) + ggtitle("Comparison of parties with respect to senators in 2014")
+
+```
+
+```{r}
+avg_pc <- changes %>% group_by(party, year)
+avg_pc1 <- avg_pc %>% summarise(
+  PC1 = mean(PC1)
+)
+```
+
+
+
+```{r fig.width= 10}
+avg_pc2 = subset(avg_pc1, (avg_pc1$party == 'D' | avg_pc1$party == 'R'))
+ggplot(data = avg_pc2, aes(x = year, y = PC1, color = party)) +       
+  geom_line(aes(group = party)) + geom_point() + ggtitle("Average of PC1 over the years")
+
+
+avg_pc3 = subset(avg_pc1, (avg_pc1$party == 'A' | avg_pc1$party == 'I' | avg_pc1$party == 'ID'))
+ggplot(data = avg_pc3, aes(x = year, y = PC1, color = party)) +       
+  geom_line(aes(group = party)) + geom_point() + ggtitle("Average of PC1 over the years")
+
+
+```
+
+```{r}
+#1989
+john_1989 <- final_changes %>% 
+  filter(last_name == "McCain" & year == "1989") %>% select(PC1)
+
+mit_1989 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1989") %>%  select(PC1)
+
+#1990
+john_1990 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1990") %>% select(PC1)
+
+mit_1990 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1990") %>%  select(PC1)
+
+#1991
+john_1991 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1991") %>% select(PC1)
+
+mit_1991 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1991") %>%  select(PC1)
+
+#1992
+john_1992 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1992") %>% select(PC1)
+
+mit_1992 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1992") %>%  select(PC1)
+
+#1993
+john_1993 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1993") %>% select(PC1)
+
+mit_1993 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1993") %>%  select(PC1)
+
+#1994
+john_1994 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1994") %>% select(PC1)
+
+mit_1994 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1994") %>%  select(PC1)
+
+#1995
+john_1995 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1995") %>% select(PC1)
+
+mit_1995 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1995") %>%  select(PC1)
+
+#1996
+john_1996 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1996") %>% select(PC1)
+
+mit_1996 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1996") %>%  select(PC1)
+
+#1997
+john_1997 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1997") %>% select(PC1)
+
+mit_1997 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1997") %>%  select(PC1)
+
+#1998
+john_1998 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1998") %>% select(PC1)
+
+mit_1998 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1998") %>%  select(PC1)
+
+#1999
+john_1999 = final_changes %>% 
+  filter(last_name == "McCain" & year == "1999") %>% select(PC1)
+
+mit_1999 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "1999") %>%  select(PC1)
+
+#2000
+john_2000 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2000") %>% select(PC1)
+
+mit_2000 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2000") %>%  select(PC1)
+
+#2001
+john_2001 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2001") %>% select(PC1)
+
+mit_2001 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2001") %>%  select(PC1)
+
+#2002
+john_2002 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2002") %>% select(PC1)
+
+mit_2002 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2002") %>%  select(PC1)
+
+#2003
+john_2003 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2003") %>% select(PC1)
+
+mit_2003 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2003") %>%  select(PC1)
+
+#2004
+john_2004 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2004") %>% select(PC1)
+
+mit_2004 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2004") %>%  select(PC1)
+
+#2005
+john_2005 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2005") %>% select(PC1)
+
+mit_2005 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2005") %>%  select(PC1)
+
+#2006
+john_2006 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2006") %>% select(PC1)
+
+mit_2006 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2006") %>%  select(PC1)
+
+#2007
+john_2007 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2007") %>% select(PC1)
+
+mit_2007 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2007") %>%  select(PC1)
+
+#2008
+john_2008 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2008") %>% select(PC1)
+
+mit_2008 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2008") %>%  select(PC1)
+
+#2009
+john_2009 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2009") %>% select(PC1)
+
+mit_2009 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2009") %>%  select(PC1)
+
+#2010
+john_2010 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2010") %>% select(PC1)
+
+mit_2010 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2010") %>%  select(PC1)
+
+#2011
+john_2011 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2011") %>% select(PC1)
+
+mit_2011 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2011") %>%  select(PC1)
+
+#2012
+john_2012 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2012") %>% select(PC1)
+
+mit_2012 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2012") %>%  select(PC1)
+
+#2013
+john_2013 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2013") %>% select(PC1)
+
+mit_2013 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2013") %>%  select(PC1)
+
+#2014
+john_2014 = final_changes %>% 
+  filter(last_name == "McCain" & year == "2014") %>% select(PC1)
+
+mit_2014 <- final_changes %>% 
+  filter(last_name == "McConnell" & year == "2014") %>%  select(PC1)
+```
+
+```{r}
+John_Mccain = c(john_1989$PC1,john_1990$PC1,john_1991$PC1,john_1992$PC1,john_1993$PC1,john_1994$PC1,
+           john_1995$PC1,john_1996$PC1,john_1997$PC1,john_1998$PC1,john_1999$PC1,john_2000$PC1,
+           john_2001$PC1,john_2002$PC1,john_2003$PC1,john_2004$PC1,john_2005$PC1,john_2006$PC1,
+           john_2007$PC1,john_2008$PC1[1],john_2009$PC1,john_2010$PC1,john_2011$PC1,john_2012$PC1,
+           john_2013$PC1,john_2014$PC1)
+
+R = c(mean(R_1989$PC1),mean(R_1990$PC1),mean(R_1991$PC1),mean(R_1992$PC1),mean(R_1993$PC1),
+          mean(R_1994$PC1),mean(R_1995$PC1),mean(R_1996$PC1),mean(R_1997$PC1),mean(R_1998$PC1),
+          mean(R_1999$PC1),mean(R_2000$PC1),mean(R_2001$PC1),mean(R_2002$PC1),mean(R_2003$PC1),
+          mean(R_2004$PC1),mean(R_2005$PC1),mean(R_2006$PC1),mean(R_2007$PC1),mean(R_2008$PC1),
+          mean(R_2009$PC1),mean(R_2010$PC1),mean(R_2011$PC1),mean(R_2012$PC1),mean(R_2013$PC1),
+          mean(R_2014$PC1))
+
+D = c(mean(D_1989$PC1),mean(D_1990$PC1),mean(D_1991$PC1),mean(D_1992$PC1),mean(D_1993$PC1),
+          mean(D_1994$PC1),mean(D_1995$PC1),mean(D_1996$PC1),mean(D_1997$PC1),mean(D_1998$PC1),
+          mean(D_1999$PC1),mean(D_2000$PC1),mean(D_2001$PC1),mean(D_2002$PC1),mean(D_2003$PC1),
+          mean(D_2004$PC1),mean(D_2005$PC1),mean(D_2006$PC1),mean(D_2007$PC1),mean(D_2008$PC1),
+          mean(D_2009$PC1),mean(D_2010$PC1),mean(D_2011$PC1),mean(D_2012$PC1),mean(D_2013$PC1),
+          mean(D_2014$PC1))
+
+jm_ideal_polar_df = data.frame(year=1989:2014,John_Mccain,R,D)
+
+jm_absolute_changes_df = jm_ideal_polar_df %>% pivot_longer(!year, names_to = 'Parties',values_to = "PC")  
+
+Mitch_Mcconell = c(mit_1989$PC1,mit_1990$PC1,mit_1991$PC1,mit_1992$PC1,mit_1993$PC1,mit_1994$PC1,
+                   mit_1995$PC1,mit_1996$PC1,mit_1997$PC1,mit_1998$PC1,mit_1999$PC1,mit_2000$PC1,
+                   mit_2001$PC1,mit_2002$PC1,mit_2003$PC1,mit_2004$PC1,mit_2005$PC1,mit_2006$PC1,
+                   mit_2007$PC1,mit_2008$PC1,mit_2009$PC1,mit_2010$PC1,mit_2011$PC1,mit_2012$PC1,
+                   mit_2013$PC1,mit_2014$PC)
+
+mm_ideal_polar_df = data.frame(year=1989:2014,Mitch_Mcconell,R,D)
+
+mm_absolute_changes_df = mm_ideal_polar_df %>% pivot_longer(!year, names_to = 'Parties',values_to = "PC")  
+
+```
+
+```{r}
+#plotting the graph
+ggplot(mm_absolute_changes_df,aes(x = year, y = PC,color = Parties)) + 
+  geom_point() + geom_line() + labs(title = ~bold('PC1 scores of D, R parties and Mitch McConnell')) + 
+  ylab("Average of PC1 scores") +
+  xlab("Year") 
+
+ggplot(jm_absolute_changes_df,aes(x = year, y = PC,color = Parties)) + 
+  geom_point() + geom_line() + labs(title = ~bold('PC1 scores of D, R parties and John_Mccain')) + 
+  ylab("Average of PC1 scores") +
+  xlab("Year") 
+```
+
+
