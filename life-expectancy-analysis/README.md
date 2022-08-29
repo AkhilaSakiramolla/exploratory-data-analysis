@@ -12,5 +12,5 @@ Major research questions that I answered with this analysis:
   
   4) How has the relationship between GDP and life expectancy changed in each continent? Can changes in life expectancy be entirely explained by changes in GDP per capita? Does it look like there’s a time effect on life expectancy in addition to a GDP effect? Has there been "convergence" in the sense that perhaps GDP and/or continent don’t matter as much as it used to? Are there exceptions to the general patterns?
 
-Please refer to the report for detailed explanation.
+Please refer to the Rmd file and report for detailed explanation.
 
