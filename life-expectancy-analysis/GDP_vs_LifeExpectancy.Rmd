@@ -1,0 +1,384 @@
+---
+title: "Mini Project"
+author: "Akhila"
+date: "09/02/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gapminder)
+library(ggplot2)
+```
+
+# Question - 1
+```{r}
+data = subset(gapminder, gapminder$year == 2007)
+View(data)
+```
+
+# Part-1
+```{r}
+ggplot(data = data, aes(x = gdpPercap, y = lifeExp)) + geom_point(aes(color = continent)) + geom_smooth(method="lm") + ylab("Life Expectancy") + xlab("GDP Per Capita") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+ggplot(data = data, aes(x = gdpPercap, y = lifeExp)) + geom_point(aes(color = continent)) + geom_smooth(method="loess") + ylab("Life Expectancy") + xlab("GDP Per Capita") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+```
+
+```{r}
+ggplot(data = data, aes(x = gdpPercap, y = lifeExp)) + geom_boxplot(aes(color = continent)) + ylab("Life Expectancy") + xlab("GDP Percentage") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+```
+
+# Part - 2
+```{r}
+model <- lm(gdpPercap ~ lifeExp, data = data)
+data$residuals = residuals(model)
+ggplot(data, aes(sample = residuals)) + stat_qq() + stat_qq_line() 
+```
+
+From the graph, the trends cannot be well-described by a simple model such as a linear model, a more complicated model is required. This is because the main aim of the linear regression is to model a continuous variable Y as a mathematical function of one or more X variables. From the graph above we can see that the data for the year 2007 follows a hollow-up type and not a linear graph which should be approximately equal to the normal graph. The points in the grpah 1 are not spread across the linear line which proves that the graph is not linear. As, the data is not evenly spread which we can see from the point plot and the graph above where there are too many outliers that exist for the data. Having outliers in the graph while making predictions for linear model can drastically affect the predictions as they can easily affect the direction/slope of the line of best fit. 
+
+# Part - 3
+```{r}
+ggplot(data = data, aes(x = log(gdpPercap), y = lifeExp)) + geom_point(aes(color = continent)) + geom_smooth(method="lm") + ylab("Life Expectancy") + xlab("GDP Per Capita (log)") + facet_wrap(.~continent,scales = "free") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+ggplot(data = data, aes(x = gdpPercap, y = lifeExp)) + geom_point(aes(color = continent)) + geom_smooth(method="lm") + ylab("Life Expectancy") + xlab("GDP Per Capita") + facet_wrap(.~continent,scales = "free") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+```
+
+```{r}
+ggplot(data = data, aes(x = gdpPercap, y = lifeExp)) + stat_ecdf(aes(color = continent)) + ylab("Life Expectancy") + xlab("GDP Per Capita") + ggtitle("GDP v/s Life Expectancy for the year 2007")
+```
+Additive Shift: useful when the seasonal variation is relatively constant over time.
+Multiplicative Shift: useful when the seasonal variation increases over time.
+From the graphs we can comment that the continents follow a linear pattern when we take log of the GDP percentage. Hence, it can be concluded that the graph follows a multiplicative shift approximately. For the continent of Oceania, it is difficult to decide whether it is a multiplicative shift or an additive shift, since the data points for Oceania are less and the data seem to be very limited. Hence, Oceania can be considered as an outlier and requires a more complicated method to estimate the shift.
+
+
+
+```{r}
+df = subset(gapminder)
+head(df)
+unique(df[c("continent")])
+```
+
+```{r}
+unique(df[c("year")])
+```
+
+```{r}
+sapply(df, class)
+```
+
+```{r}
+df$a <- factor(d$a)
+```
+
+```{r}
+ggplot(df, aes(lifeExp, gdpPercap)) + 
+  geom_line() + 
+  geom_point()
+```
+
+**ASIA**
+
+```{r}
+df_asia <- subset(df, continent == 'Asia')
+unique(df_asia[c("continent")])
+df_asia_wt = df_asia %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_asia_wt)
+```
+
+```{r}
+df_asia <- subset(df, continent == 'Asia')
+unique(df_asia[c("continent")])
+df_asia_wt = df_asia %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = log(weighted.mean(gdpPercap)))
+head(df_asia_wt)
+```
+
+```{r}
+
+
+ggplot(df_asia_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Asia") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_asia_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+
+ggplot(df_asia_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**EUROPE**
+
+```{r}
+df_eu <- subset(df, continent == 'Europe')
+unique(df_eu[c("continent")])
+df_eu_wt = df_eu %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_eu_wt)
+```
+
+```{r}
+ggplot(df_eu_wt, aes(gdpPercap,lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Europe") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_eu_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_eu_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**AFRICA**
+
+```{r}
+df_africa <- subset(df, continent == 'Africa')
+unique(df_africa[c("continent")])
+df_africa_wt = df_africa %>% 
+  group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_africa_wt)
+```
+
+```{r}
+ggplot(df_africa_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Africa") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_africa_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_africa_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point()+
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**AMERICAS**
+
+```{r}
+df_am <- subset(df, continent == 'Americas')
+unique(df_am[c("continent")])
+df_am_wt = df_am %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_am)
+```
+
+```{r}
+ggplot(df_am_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Americas") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_am_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_am_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+
+```{r}
+data <- subset.data.frame(gapminder)
+data
+```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+df_grp <- data %>% 
+  group_by(continent,year) %>% 
+  summarise(weighted_mean = weighted.mean(lifeExp, pop))
+df_grp
+```
+
+
+
+```{r}
+ggplot(df_grp,aes(x = df_grp$year, y = df_grp$weighted_mean)) + geom_line() + facet_wrap(. ~ df_grp$continent) + xlab("Year") + ylab("Life expectation(weighted average)") + ggtitle("Weighted mean of each life expectancy for each Continent over time")
+```
+We can see that for the continents Americas,Europe and Oceania, the weighted mean of life expectancy ranges from approximately around 60 to 80. 
+But for continents like Africa,Asia the scale for weighted mean of life expectancy ranges from around 40 to 55 & 70 respectively.
+We can observe that the even though in the initial years the life expectancy values are small they seem to have caught up for Asia, and partially almost caught up for Africa,with the Americas,Europe and Oceania. 
+We dig deeper to check if the countries in these continents are the reason behind this.
+
+For the continents of Americas,Europe and Oceania, the life expectancy seems to have an approximately linear growth. We can say that with assurity, because Europe and Americas have substantial number of data points as opposed to Oceania. Since Oceania has only 2 countries, based on their trend, it is visible but not reliable to say that the trend is a linear upward going one.
+For the continents of Africa and Asia, we see a sudden dip. 
+In around 1990-2000, we observe that in Africa, there is a change in the linear path of the graph. This could be because of the individual countries in the continent. After we observe the facets of countries inside Africa, we observe a change in the graph direction around the same period(1990-2000), which could justify the change in the graph for the entire continent. 
+
+```{r}
+df_grp_country <- data %>% 
+  group_by(country,continent) %>% 
+  summarise(weighted_mean = weighted.mean(lifeExp, pop))
+```
+
+To further analyse, we filter out data into dataframes for each continent.
+
+```{r fig.width=4, fig.height=10, echo=FALSE}
+Africa <- filter(data, continent == "Africa")
+Americas <- filter(data, continent == "Americas")
+Asia <- filter(data, continent == "Asia")
+Europe <- filter(data, continent == "Europe")
+Oceania <- filter(data, continent == "Oceania")
+```
+
+```{r fig.width=6, fig.height=4, echo=FALSE}
+df_Africa <- Africa %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Africa
+ggplot(df_Africa,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x") + ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years for Africa")
+```
+We try to observe the trends within each country of the Africa continent, but to dig deeper, since there is a plateau region around and beyond the year 1990, we try to plot the same
+```{r}
+df_Africa_period <- filter(Africa, year > 1990)
+```
+
+```{r fig.width=6, fig.height=4, echo=FALSE}
+df_Africa_period <- df_Africa_period %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Africa_period
+#ggplot(df_Africa_period,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x")+ ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years more than 1990) for Africa")
+```
+To justify the flattening of weighted mean, we look at some numbers for the countries of Countries for the time period > 1990, we look at the average life Expectancy as well. This comes out to be around 50 approx, which could justify flattened graph around 50 for the continent of Africa
+```{r}
+Africa_period <- filter(Africa, year > 1990)
+mean(Africa_period$lifeExp)
+```
+
+``````{r fig.width=4, fig.height=4, echo=FALSE}
+df_Americas <- Americas %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Americas
+ggplot(df_Americas,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x") + ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years for Americas")
+```
+
+``````{r fig.width=6, fig.height=4, echo=FALSE}
+df_Asia <- Asia %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Asia
+ggplot(df_Asia,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x") + ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years for Asia")
+```
+
+
+```{r fg.widht = 4, fig.height=4}
+df_Asia_period <- df_Asia_period %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+ggplot(df_Asia_period,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x") + ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years(between 1950 to 1970) for Asia")
+```
+
+
+```{r fig.width=4, fig.height=4, echo=FALSE}
+df_Europe <- Europe %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Europe
+ggplot(df_Europe,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x")+ ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years for Europe")
+```
+
+```{r fig.width=4, fig.height=2, echo=FALSE}
+df_Oceania <- Oceania %>% group_by(country,year) %>% summarise(wmean = weighted.mean(lifeExp))
+df_Oceania
+ggplot(df_Oceania,aes(y = wmean, x = year)) + geom_line() + facet_wrap(. ~ country,scales = "free_x")+ ylab("Weighted mean of Life Expectancy")  + ggtitle("Life expectancy over years for Oceania")
+```
+
+Question 3:
+#Coplot function
+```{r}
+make_coplot_df = function(data_frame, faceting_variable, number_bins = 6) {
+    ## co.intervals gets the limits used for the conditioning intervals
+    intervals = co.intervals(data_frame[[faceting_variable]], number = number_bins)
+    ## indices is a list, with the ith element containing the indices of the
+    ## observations falling into the ith interval
+    indices = apply(intervals, 1, function(x)
+        which(data_frame[[faceting_variable]] <= x[2] & data_frame[[faceting_variable]] >= x[1]))
+    ## interval_descriptions is formatted like indices, but has interval
+    ## names instead of indices of the samples falling in the index
+    interval_descriptions = apply(intervals, 1, function(x) {
+        num_in_interval = sum(data_frame[[faceting_variable]] <= x[2] & data_frame[[faceting_variable]] >= x[1])
+        interval_description = sprintf("(%.2f, %.2f)", x[1], x[2])
+        return(rep(interval_description, num_in_interval))
+    })
+    ## df_expanded has all the points we need for each interval, and the
+    ## 'interval' column tells us which part of the coplot the point should
+    ## be plotted in
+    df_expanded = data_frame[unlist(indices),]
+    df_expanded$interval = factor(unlist(interval_descriptions),
+        levels = unique(unlist(interval_descriptions)), ordered = TRUE)
+    return(df_expanded)
+}
+```
+
+```{r}
+head(data)
+```
+
+
+
+
+
+
+
+```{r}
+library(dplyr)
+Asia_countries <- c("China","Hong Kong, China","Israel","Japan","Singapore","Sri Lanka","Oman","Cambodia","Afghanistan","Bangladesh","Vietnam","Yemen, Rep.","India")
+
+Asia_subset <- filter(data, country %in% Asia_countries)
+Asia_subset
+
+grp_asia <-Asia_subset %>% group_by(country,year) %>% 
+  summarise(weighted_mean = weighted.mean(lifeExp, pop))
+grp_asia
+```
+
+```{r}
+ggplot(grp_asia, aes(x = year, y = weighted_mean, colour = country)) +
+  geom_line() + xlab(("Year")) +ylab(("Life expectancy(weighted average)")) + ggtitle("Life expectancy over the years across few Asian countries")
+```
+
+```{r}
+data_gdp <- data %>% group_by(continent,year) %>% summarise(lifeExp,gdp = log(gdpPercap))
+data_gdp
+```
+
+```{r fig.width= 5}
+ggplot(data_gdp, aes(y = lifeExp, x = gdp, colour = continent)) + facet_wrap(. ~ year,scales = "free") +
+  geom_point()+ geom_smooth(method = "lm",se = F) + xlab(("GDP Per capita(log)")) + ylab(("Life expectancy")) + ggtitle("Life expectancy Vs GDP per capita over the years for Continents")
+```
