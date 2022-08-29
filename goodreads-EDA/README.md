@@ -17,4 +17,4 @@ Major research questions addressed:
   4) One of the important research questions was to observe authors’ performances over time. Are they performing the same over time, with their new books? 
   5) I wanted to know if books can be recommended based on their ratings.
 
-Please refer to the report for detailed explanation.
+Please refer to the Rmd file and report for detailed explanation.
