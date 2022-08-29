@@ -16,4 +16,4 @@ Major research questions I answered with this analysis:
   3) what are the absolute changes in the ideological positions of the parties so that we can assign blame to one or both parties for
 polarization?
 
-Please refer to the report for detailed explanation.
+Please refer to the RMD file and report for detailed explanation.
