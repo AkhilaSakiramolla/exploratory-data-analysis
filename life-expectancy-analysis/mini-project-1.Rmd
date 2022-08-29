@@ -1,0 +1,178 @@
+---
+title: "mini-project-1"
+output: html_document
+---
+
+```{r cars}
+library(gapminder)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+df = subset(gapminder)
+head(df)
+unique(df[c("continent")])
+```
+
+```{r}
+unique(df[c("year")])
+```
+
+```{r}
+sapply(df, class)
+```
+
+```{r}
+df$a <- factor(d$a)
+```
+
+```{r}
+ggplot(df, aes(lifeExp, gdpPercap)) + 
+  geom_line() + 
+  geom_point()
+```
+
+**ASIA**
+
+```{r}
+df_asia <- subset(df, continent == 'Asia')
+unique(df_asia[c("continent")])
+df_asia_wt = df_asia %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_asia_wt)
+```
+
+```{r}
+df_asia <- subset(df, continent == 'Asia')
+unique(df_asia[c("continent")])
+df_asia_wt = df_asia %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = log(weighted.mean(gdpPercap)))
+head(df_asia_wt)
+```
+
+```{r}
+
+
+ggplot(df_asia_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Asia") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_asia_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+
+ggplot(df_asia_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**EUROPE**
+
+```{r}
+df_eu <- subset(df, continent == 'Europe')
+unique(df_eu[c("continent")])
+df_eu_wt = df_eu %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_eu_wt)
+```
+
+```{r}
+ggplot(df_eu_wt, aes(gdpPercap,lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Europe") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_eu_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_eu_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**AFRICA**
+
+```{r}
+df_africa <- subset(df, continent == 'Africa')
+unique(df_africa[c("continent")])
+df_africa_wt = df_africa %>% 
+  group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_africa_wt)
+```
+
+```{r}
+ggplot(df_africa_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Africa") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_africa_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_africa_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point()+
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
+
+**AMERICAS**
+
+```{r}
+df_am <- subset(df, continent == 'Americas')
+unique(df_am[c("continent")])
+df_am_wt = df_am %>% group_by(year) %>% 
+  summarise(lifeExp = weighted.mean(lifeExp), gdpPercap = weighted.mean(gdpPercap))
+head(df_am)
+```
+
+```{r}
+ggplot(df_am_wt, aes(gdpPercap, lifeExp, group = year, colour = year)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Relationship between Life Expectancy and GDP Percapita for Americas") + 
+  xlab("GDP Percapita") +
+  ylab("Life Expectancy")
+
+ggplot(df_am_wt, aes(year, lifeExp)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of Life Expectancy over Years") + 
+  xlab("Year") +
+  ylab("Life Expectancy")
+
+ggplot(df_am_wt, aes(year, gdpPercap)) + 
+  geom_line() + 
+  geom_point() +
+  ggtitle("Distribution of GDP Percapita over Years") + 
+  xlab("Year") +
+  ylab("GDP Percapita")
+```
