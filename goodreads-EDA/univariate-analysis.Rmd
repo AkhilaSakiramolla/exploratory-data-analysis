@@ -1,0 +1,299 @@
+---
+title: "final-project"
+output: html_document
+---
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+```
+
+```{r}
+df_books<-read.csv("books.csv")
+df_books<-na.omit(df_books)
+head(df_books)
+```
+```{r}
+# Changing the data types of columns - average_rating(chr to int), num_pages(chr to int)
+df_books$average_rating<-as.numeric(df_books$average_rating)
+df_books$num_pages<-as.numeric(df_books$num_pages)
+df_books$publication_date <- as.Date(df_books$publication_date, "%m/%d/%Y")
+```
+
+```{r}
+# Checking the number of rows and columns in the dataset
+ncol(df_books)
+nrow(df_books)
+```
+```{r}
+# Filling all the null values with 0 in the data set
+#df_books[is.na(df_books)] <- 0
+```
+
+```{r}
+# Checking the summary of the dataset
+summary(df_books)
+```
+
+```{r}
+# Checking the unique count values of chr variables
+length(unique(df_books$bookID))
+length(unique(df_books$title))
+length(unique(df_books$authors))
+length(unique(df_books$isbn))
+length(unique(df_books$isbn13))
+length(unique(df_books$language_code))
+length(unique(df_books$publisher))
+
+
+# Checking the last and latest dates in publication_date column
+min(df_books$publication_date)
+max(df_books$publication_date)
+```
+Preliminary Data Analysis
+
+```{r}
+df_books %>% 
+  group_by(title) %>%
+  summarise(count = n_distinct(isbn)) %>%
+  arrange(desc(count))%>%
+  head(10)%>%
+  ggplot(aes(x=reorder(title,count),y=count)) +
+  xlab("Books") +
+  ylab('Number of occurences') +
+  ggtitle("Top 10 occuring books")+
+  geom_col(fill="steelblue") + coord_flip() 
+```
+We can see that "The Lliad" and "The Brothers Karamazov" have the most number of concurrences with the same name in the data.
+
+Various editions of these books have been found over and over again in this database. It can be seen from the table that most of the books on the list are either old, steadfast classics or books that are usually assigned to schools. There are some books that age well, and these are among them.
+
+```{r}
+df_books %>% 
+  group_by(authors) %>%
+  summarise(count = n_distinct(title)) %>%
+  arrange(desc(count))%>%
+  head(10)%>%
+  ggplot(aes(x=reorder(authors,count),y=count)) +
+  xlab("Authors") +
+  ylab('Total number of books') +
+  ggtitle("Top 10 authors with most books")+
+  geom_col(fill="steelblue") + coord_flip() 
+```
+We can see from the above plot that Rumiko Takahashi has the most number of books in the list. Several of them might be just different editions of the same book, considering that his work has been around for a long time, spanning decades.
+
+The names on the list again indicate that most of the authors have either written for decades, churning out numerous books on a regular basis, or are regarded as 'classics' in our history.
+
+```{r}
+hist(df_books$average_rating, 
+     main="Distribution of Average Rating", 
+     xlab="Average Rating")
+```
+From the given plot, we can infer that:
+
+1. The majority of the ratings are between 3.7 and 4.3 approximately.
+2. There are very few books with a rating of 5.
+
+
+```{r}
+simplify_pages <- function(length){
+  if( isTRUE(length > 0 & length <= 1) ){
+    result = '0 to 1'
+  } else if( isTRUE(length > 1 & length <= 2) ){
+    result = '1 to 2'
+  } else if( isTRUE(length > 2 & length <= 3) ){
+    result = '2 to 3'
+  } else if( isTRUE(length > 3 & length <= 4) ){
+    result = '3 to 4'
+  } else if( isTRUE(length > 4 & length <= 5) ){
+    result = '4 to 5'
+}}
+
+ratings <- unlist(lapply(df_books$average_rating, simplify_pages))
+```
+
+```{r}
+counts_df <- data.frame(table(unlist(strsplit(ratings, "  "))), 
+  stringsAsFactors=FALSE)
+```
+
+```{r}
+barplot(counts_df$Freq,
+        names.arg=c("0 to 1","1 to 2","2 to 3","3 to 4","4 to 5"),
+        ylab="Books count",
+        xlab = "Ratings",
+        main = "Distribution of Average Rating")
+```
+
+Surprisingly, the number of ratings between 0 and 1 is much greater, meaning that even if someone hates a book, it'll still receive a minimum of 2 stars just for the effort they put into reading it. According to the kurtosis of the graph, the majority of the ratings fall between 3 and 4, indicating that for the effort it took to read, and the thrilling nature of the book, it was worth the effort.
+
+```{r}
+head(df_books)
+```
+
+```{r}
+df_books %>% 
+  group_by(language_code) %>%
+  summarise(count = n_distinct(bookID)) %>%
+  arrange(desc(count))%>%
+  head(10)%>%
+  ggplot(aes(x=reorder(language_code,count),y=count)) +
+  xlab("Language Codes") +
+  ylab('Total number of books') +
+  ggtitle("Distribution of Language Codes")+
+  geom_col(fill="steelblue")  
+```
+```{r}
+# simplifying the pages to different levels  
+# round up -- anything under 50, gets a length of 50, anything between 50 and 150 gets a length of 100, anything between 150 and 250 gets a length of 20, and so on
+simplify_pages <- function(length){
+  if(isTRUE(length <= 50)){
+    result = 50
+  } else if( isTRUE(length > 50 & length <= 150) ){
+    result = 100
+  } else if( isTRUE(length > 150 & length <= 250) ){
+    result = 200
+  } else if( isTRUE(length > 250 & length <= 350) ){
+    result = 300
+  } else if( isTRUE(length > 350 & length <= 450) ){
+    result = 400
+  } else if( isTRUE(length > 450 & length <= 550) ){
+    result = 500
+  } else if( isTRUE(length > 550 & length <= 650) ){
+    result = 600
+  } else if( isTRUE(length > 650 & length <= 750) ){
+    result = 700
+  } else if( isTRUE(length > 750 & length <= 850) ){
+    result = 800
+  } else if( isTRUE(length > 850 & length <= 950) ){
+    result = 900
+  } else {result = 1000}
+}
+
+as_num_page <- as.numeric(unlist(lapply(df_books$num_pages, toString)))
+pages <- unlist(lapply(as_num_page, simplify_pages))
+pages <- na.omit(pages)
+```
+
+```{r}
+# histogram of num_pages
+pages_hist <- data.frame("pages" = pages)
+ggplot(data = pages_hist) + aes(pages) + geom_bar() + 
+  ggtitle("Distribution of Number of Pages") +
+  xlab("Number of pages") +
+  ylab("Total number of books") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+As expected, we can observe from the above right skewed histogram that there are a significant number of data points (perhaps outliers) that are greater than the mode.
+
+
+```{r}
+# boxplot might also be helpful
+ggplot(data = pages_hist) + aes(y = pages) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Distribution of Number of Pages")+
+  #xlab("Number of pages")+
+  ylab("Total number of books") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+We can observe a significant amount of outliers between 750 and 1000 pages, which suggests that these outliers may be too important to remove from the data set before data analysis.
+
+```{r}
+summary(df_books$ratings_count)
+```
+Which provides another case of interesting outliers. Observe the max value: 4,597,666. Compare it to the mean: 17936. Compare this to the median: 745. We can already observe how the few bestsellers/extremely popular books in the dataset may affect the statistical analysis of the data.
+
+
+```{r}
+ggplot(data = df_books) + aes(y = ratings_count) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Distribution of Ratings Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Ratings count") 
+```
+We can observe that due to the large number of massive outliers, it will be necessary to include outlier analysis when exploring questions related to ratings counts.
+
+```{r}
+ggplot(data = df_books) + aes(y = text_reviews_count) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Distribution of Text Reviews Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Reviews count")
+```
+```{r}
+df_books %>% 
+  group_by(publisher) %>%
+  summarise(count = n_distinct(title)) %>%
+  arrange(desc(count))%>%
+  head(10)%>%
+  ggplot(aes(x=reorder(publisher,count),y=count)) +
+  xlab("Publishers") +
+  ylab('Total number of books') +
+  ggtitle("Top 10 publishers with most books")+
+  geom_col(fill="blue") + coord_flip() 
+```
+```{r}
+# Separate year from datetime:
+df_books$year <- format(df_books$publication_date, format="%Y")
+
+df_books$month <- format(df_books$publication_date, format="%b")
+
+df_books$day <- format(df_books$publication_date, format="%d")
+```
+
+```{r}
+head(df_books)
+```
+```{r}
+temp = df_books[df_books$authors == 'Dick Francis', ]
+temp
+
+ggplot(temp, aes(year, average_rating)) +
+  geom_line(aes(colour = authors))
+```
+
+
+```{r}
+df_authors = df_books %>%
+  group_by(authors) %>%
+  summarise(count = n_distinct(title)) %>%
+  arrange(desc(count)) %>%
+  head(10)
+
+df_authors
+```
+
+```{r}
+names = df_authors$authors
+names
+```
+```{r}
+authors_top10 <- subset(df_books, authors %in% names)
+authors_top10[authors_top10$authors == 'Dick Francis', ]
+```
+
+```{r}
+authors_plot = authors_top10 %>%
+  group_by(authors, year) %>%
+  summarise(rating_mean = mean(average_rating)) 
+
+authors_plot
+```
+
+```{r, fig.width=12}
+ggplot(data = authors_plot, aes(x=year, y=rating_mean)) + geom_point() + theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) + facet_wrap(~ authors, ncol = 2)
+```
+
+
+```{r}
+#ggplot(authors_plot, aes(x = year, y = rating_mean)) +
+ # geom_line(aes(colour = authors))
+
+ggplot(authors_plot, aes(year, rating_mean)) +
+  geom_line() 
+```
+

@@ -1,0 +1,557 @@
+---
+title: "final-project"
+output: html_document
+---
+
+```{r}
+install.packages("superml")
+install.packages("superml", dependencies=TRUE) # to install all dependencies at once
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(arm)
+library(GGally)
+```
+
+```{r}
+df_books<-read.csv("books.csv")
+df_books<-na.omit(df_books)
+head(df_books)
+```
+
+```{r}
+# Changing the data types of columns - average_rating(chr to int), num_pages(chr to int)
+df_books$average_rating<-as.numeric(df_books$average_rating)
+df_books$num_pages<-as.numeric(df_books$num_pages)
+```
+
+```{r}
+# Checking the number of rows and columns in the dataset
+ncol(df_books)
+nrow(df_books)
+```
+
+```{r}
+# Filling all the null values with 0 in the data set
+df_books[is.na(df_books)] <- 0
+```
+
+```{r}
+# Checking the summary of the dataset
+summary(df_books)
+```
+
+```{r}
+# Checking the unique count values of chr variables
+length(unique(df_books$bookID))
+length(unique(df_books$title))
+length(unique(df_books$authors))
+length(unique(df_books$isbn))
+length(unique(df_books$isbn13))
+length(unique(df_books$language_code))
+length(unique(df_books$publisher))
+
+
+# Checking the last and latest dates in publication_date column
+min(df_books$publication_date)
+max(df_books$publication_date)
+```
+
+```{r}
+head(df_books)
+```
+
+Exploratory Data Analysis
+
+1.  Publication date
+
+```{r}
+df_books[is.na(df_books$publication_date),]
+```
+
+```{r}
+df_books %>% drop_na(publication_date)
+```
+
+```{r}
+df_books[is.na(df_books$publication_date),]
+```
+
+```{r}
+df_books$publication_date <- as.Date(df_books$publication_date, "%m/%d/%Y")
+```
+
+```{r}
+# Separate year from datetime:
+df_books$year <- format(df_books$publication_date, format="%Y")
+df_books$month <- format(df_books$publication_date, format="%b")
+df_books$day <- format(df_books$publication_date, format="%d")
+```
+
+```{r}
+df_books$year<-as.numeric(df_books$year)
+```
+
+```{r}
+head(df_books)
+```
+
+```{r}
+# years
+year_success <- df_books %>%
+  group_by(year) %>%
+  arrange(desc(year)) %>%
+  summarise(avg_ratings = mean(average_rating, na.rm = TRUE), 
+            total_reviews = sum(ratings_count, na.rm = TRUE))
+```
+
+```{r}
+year_success <- na.omit(year_success)
+```
+
+```{r}
+year_success
+```
+
+```{r, fig.width = 12}
+
+ggplot(data=year_success, aes(x = year, y=avg_ratings, group=1)) +
+  geom_line()+
+  geom_point() +
+  ylab("average rating") + ggtitle("AVERAGE RATING 1900 - 2020") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+```{r, fig.width = 12}
+
+ggplot(data=year_success, aes(x = year, y=total_reviews, group=1)) +
+  geom_line()+
+  geom_point() +
+  ylab("total reviews") + ggtitle("TOTAL REVIEWS 1900 - 2020") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+```{r}
+  
+# now we group by month
+month_success <- df_books %>%
+  group_by(month) %>%
+  summarise(avg_rating = mean(average_rating, na.rm = TRUE), 
+            total_reviews = sum(ratings_count, na.rm = TRUE))
+
+```
+
+```{r}
+
+month_success = month_success %>% arrange(desc(avg_rating))
+month_success <- na.omit(month_success)
+print.data.frame(month_success)
+```
+
+```{r}
+# we can try plotting it
+ggplot(data = month_success) + aes(month, avg_rating) + 
+  geom_point() + theme_minimal() + 
+  ggtitle("AVERAGE RATING PER MONTH") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("months") + ylab("average rating")
+```
+
+```{r}
+# we'll do the same with number of reviews
+month_success <- month_success %>% arrange(desc(total_reviews))
+print.data.frame(month_success)
+```
+
+```{r}
+# we can try plotting it
+ggplot(data = month_success) + aes(month, total_reviews) + 
+  geom_point() + theme_minimal() + 
+  ggtitle("TOTAL REVIEWS PER MONTH") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("months") + ylab("total reviews")
+```
+
+```{r}
+Q_dates <- quantile(df_books$ratings_count, probs=c(.25, .75), na.rm = FALSE)
+iqr_dates <- IQR(df_books$ratings_count)
+
+up_dates <-  Q_dates[2]+1.5*iqr_dates # Upper Range  
+low_dates <- Q_dates[1]-1.5*iqr_dates # Lower Range
+
+paste("The low cut-off is", low_dates, "the high cut-off is", up_dates,"which is equal to the low and high cut offs for the pages tibble" ,sep = " ")
+```
+
+```{r}
+# subsetting
+months_sin_outliers <- subset(df_books, ratings_count > low_dates & ratings_count < up_dates)
+
+# grouping
+months_no_outliers <- months_sin_outliers %>%
+  group_by(month) %>%
+  summarise(avg_rating = mean(average_rating, na.rm = TRUE), 
+            total_reviews = sum(ratings_count, na.rm = TRUE))
+
+months_no_outliers <- na.omit(months_no_outliers)
+
+# plotting again
+ggplot(data = months_no_outliers) + aes(month, total_reviews) +
+  geom_point() + theme_minimal() + 
+  ggtitle("TOTAL REVIEWS PER MONTH WITHOUT OUTLIERS") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("months") + ylab("total reviews")
+```
+
+```{r}
+# days
+day_success <- df_books %>%
+  group_by(day) %>%
+  arrange(desc(day)) %>%
+  summarise(avg_rating = mean(average_rating, na.rm = TRUE), 
+            total_reviews = sum(ratings_count, na.rm = TRUE))
+
+day_success <- na.omit(day_success)
+
+ggplot(data = day_success) + aes(day, avg_rating) +
+  geom_point() + theme_minimal() +
+  ggtitle("AVERAGE RATING PER DAY OF THE MONTH") +
+  xlab("day") + ylab("average rating") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+# lets do the same with total reviews
+ggplot(data = day_success) + aes(day, total_reviews) +
+  geom_point() + theme_minimal() +
+  ggtitle("TOTAL REVIEWS PER DAY OF THE MONTH") +
+  xlab("day") + ylab("total reviews") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+# outliers
+# subsetting
+days_sin_outliers <- subset(df_books, ratings_count > low_dates & ratings_count < up_dates)
+
+# grouping
+days_no_outliers <- days_sin_outliers %>%
+  group_by(day) %>%
+  summarise(avg_rating = mean(average_rating, na.rm = TRUE), 
+            total_reviews = sum(ratings_count, na.rm = TRUE))
+
+# plotting again
+ggplot(data = days_no_outliers) + aes(day, total_reviews) +
+  geom_point() + theme_minimal() + 
+  ggtitle("TOTAL REVIEWS PER DAY OF THE MONTH WITHOUT OUTLIERS") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("days") + ylab("total reviews")
+```
+
+```{r}
+head(df_books)
+```
+
+Relationship between ratings count and average rating
+
+```{r}
+b <- ggplot(df_books, aes(x = average_rating, y = ratings_count))
+# Scatter plot with regression line
+b + geom_point()+
+  geom_smooth(method = "lm") 
+
+```
+
+```{r}
+ggplot(data = df_books) + aes(y = ratings_count) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of Ratings Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("ratings count")
+```
+
+```{r}
+# let's look at the same summaries again but after removing outliers
+# will use iqr method
+
+Q <- quantile(df_books$ratings_count, probs=c(.25, .75), na.rm = FALSE)
+iqr <- IQR(df_books$ratings_count)
+
+up <-  Q[2]+1.5*iqr # Upper Range  
+low<- Q[1]-1.5*iqr # Lower Range
+
+paste("The low cut-off is", low, "the high cut-off is", up, sep = " ")
+```
+
+```{r}
+df_wo_count_outl <- subset(df_books, ratings_count > low & ratings_count < up)
+df_wo_count_outl <- df_wo_count_outl %>% arrange(desc(ratings_count))
+head(df_wo_count_outl)
+```
+
+```{r}
+ggplot(data = df_wo_count_outl) + aes(y = ratings_count) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of Ratings Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("ratings count")
+```
+
+```{r}
+summary(df_books$ratings_count)
+```
+
+```{r}
+summary(df_wo_count_outl$ratings_count)
+```
+
+```{r}
+b <- ggplot(df_wo_count_outl, aes(x = average_rating, y = ratings_count))
+# Scatter plot with regression line
+b + geom_point()+
+  geom_smooth(method = "lm") +
+  ggtitle("Average ratings vs Total ratings") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("Average rating") + ylab("Total ratings")
+  
+```
+
+Relationship between average rating and number of pages
+
+```{r}
+b <- ggplot(df_books, aes(x = average_rating, y = num_pages))
+# Scatter plot with regression line
+b + geom_point()+
+  geom_smooth(method = "lm") 
+```
+
+```{r}
+ggplot(data = df_books) + aes(y = num_pages) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of pages Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("pages count")
+```
+
+```{r}
+# let's look at the same summaries again but after removing outliers
+# will use iqr method
+
+Q <- quantile(df_books$num_pages, probs=c(.25, .75), na.rm = FALSE)
+iqr <- IQR(df_books$num_pages)
+
+up <-  Q[2]+1.5*iqr # Upper Range  
+low<- Q[1]-1.5*iqr # Lower Range
+
+paste("The low cut-off is", low, "the high cut-off is", up, sep = " ")
+```
+
+```{r}
+df_wo_count_outl <- subset(df_books, num_pages > low & num_pages < up)
+df_wo_count_outl <- df_wo_count_outl %>% arrange(desc(num_pages))
+head(df_wo_count_outl)
+```
+
+```{r}
+ggplot(data = df_wo_count_outl) + aes(y = num_pages) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of pages Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("pages count")
+```
+
+```{r}
+summary(df_books$num_pages)
+```
+
+```{r}
+summary(df_wo_count_outl$num_pages)
+```
+
+```{r}
+b <- ggplot(df_wo_count_outl, aes(x = average_rating, y = num_pages))
+# Scatter plot with regression line
+b + geom_point()+
+  geom_smooth(method = "lm") +
+  ggtitle("Average ratings vs Total number of pages") +
+  theme(axis.text.x = element_text(angle = 0), plot.title = element_text(hjust = 0.5)) + 
+  xlab("Average rating") + ylab("Number of pages")
+  
+```
+
+Average rating vs text review counts
+
+```{r}
+head(df_books)
+```
+
+```{r}
+ggplot(df_books, aes(x = average_rating, y = text_reviews_count)) + geom_point()+
+  geom_smooth(method = "lm") 
+```
+
+```{r}
+
+```
+
+Modelling
+
+```{r}
+head(df_books)
+```
+
+```{r}
+# let's look at the same summaries again but after removing outliers
+# will use iqr method
+
+Q <- quantile(df_books$ratings_count, probs=c(.1, .9), na.rm = FALSE)
+iqr <- IQR(df_books$ratings_count)
+
+up <-  Q[2]+1.5*iqr # Upper Range  
+low<- Q[1]-1.5*iqr # Lower Range
+
+paste("The low cut-off is", low, "the high cut-off is", up, sep = " ")
+```
+
+```{r}
+df_books1 <- subset(df_books, ratings_count > low & ratings_count < up)
+df_books1 <- df_books1 %>% arrange(desc(ratings_count))
+ncol(df_books1)
+nrow(df_books1)
+```
+
+```{r}
+ggplot(data = df_books1) + aes(y = ratings_count) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of Ratings Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("ratings count")
+```
+
+```{r}
+# let's look at the same summaries again but after removing outliers
+# will use iqr method
+
+Q <- quantile(df_books1$num_pages, probs=c(.1, .9), na.rm = FALSE)
+iqr <- IQR(df_books1$num_pages)
+
+up <-  Q[2]+1.5*iqr # Upper Range  
+low<- Q[1]-1.5*iqr # Lower Range
+
+paste("The low cut-off is", low, "the high cut-off is", up, sep = " ")
+```
+
+```{r}
+df_books2 <- subset(df_books1, num_pages > low & num_pages < up)
+df_books2 <- df_books2 %>% arrange(desc(num_pages))
+ncol(df_books2)
+nrow(df_books2)
+```
+
+```{r}
+ggplot(data = df_books2) + aes(y = num_pages) + 
+  geom_boxplot() + theme_minimal() + 
+  ggtitle("Boxplot of Number of pages") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Number of pages")
+```
+
+```{r}
+LabelEncoder1 <- function(x, labels) {
+    r <- sapply(x, LabelEncoder, labels)
+}
+
+df_books1$authors <- LabelEncoder1(df_books1$authors, authors)
+head(df_books1)
+
+```
+
+```{r}
+head(df_books1)
+```
+
+```{r}
+# category text review
+df_books1<- df_books1 %>% mutate(
+  Categoritaltextreview = case_when(
+    text_reviews_count < 40 ~ 'low review',
+    text_reviews_count >= 40 & text_reviews_count <=222 ~ 'median review',
+    text_reviews_count > 222 ~ 'high review',
+    TRUE ~ 'unknown'
+  )) 
+# table of category text review
+df_books1$Categoritaltextreview %>% table
+```
+
+```{r}
+# author feature engineering
+author<-df_books1 %>%
+  group_by(authors) %>%
+  summarize(count = length(authors))
+author<- author %>% mutate(
+  Categoricalauthor = case_when(
+    count != 1 ~ 'Popular Author',
+    count == 1 ~ 'Normal Author') )
+df_books1 <-inner_join(df_books1,author,by=c("authors","author"))
+
+```
+
+```{r}
+rlang::last_error()
+```
+
+```{r}
+df_books1$language_code<- revalue(df_books1$language_code,c("en-US"="Eng","en-GB"="Eng","en-CA"="Eng","eng"="Eng","ara"="others",'cat'="others",'dan'="others",'ale'="others",'gla'="others",'glg'="others",'grc'="others","others",'ita'="others",'lat'='others','msa'='others','mul'='others','nl'='others','nor'='others','por'='others','rus'='others','srp'='others','swe'='others','tur'='others','wel'='others','zho'='others', "9780674842113"="others","9780851742717"="others","9781563841552"="others","9781593600112"="others","9781857237252"="others","enm"="others","heb"="others",'spa'='others','ger'='others','fre'='others','jpn'='others'))
+```
+
+```{r}
+ggpairs(df_books1[c("average_rating","num_pages", "ratings_count", "text_reviews_count", "year")],lower = list(continuous = wrap("smooth", alpha = 0.3, size=0.0001))) +
+  ggtitle("Correlation of the variables")
+```
+
+```{r}
+head(df_books1)
+```
+
+```{r}
+df_books1$LogNumberPages <- log1p(df_books1$num_pages)
+df_books1$Logratings_count <- log1p(df_books1$ratings_count)
+```
+
+```{r}
+df = df_books1
+head(df)
+```
+
+```{r}
+set.seed(1234)
+row_number <- sample(1:nrow(df),0.75*nrow(df))
+train <- df[row_number,]
+test <- df[-row_number,]
+```
+
+```{r}
+lm.fit <- lm(average_rating ~ LogNumberPages + Logratings_count + year + text_reviews_count, data = train)
+display(lm.fit)
+summary(lm.fit)
+```
+
+```{r}
+# refined model
+lm.fit2 <- lm(average_rating~ LogNumberPages+Logratings_count+text_reviews_count, data = train)
+summary(lm.fit2)
+```
+
+```{r}
+#model.lm = lm(average_rating ~ num_pages + ratings_count + text_reviews_count + year + authors , data=df_books1)
+#display(model.lm )
+```
+
+```{r}
+#summary(model.lm)
+```
